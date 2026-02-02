@@ -8,7 +8,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Home } from "./pages/home";
+import { Toaster } from "@app/components/ui/sonner";
+import { Home } from "@app/home";
 
 import "@app/globals.css";
 
@@ -20,6 +21,7 @@ const app = (
     <QueryClientProvider client={queryClient}>
       <Home />
     </QueryClientProvider>
+    <Toaster />
   </StrictMode>
 );
 

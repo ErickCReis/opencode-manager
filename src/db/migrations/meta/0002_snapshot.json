@@ -60,9 +60,7 @@
       "indexes": {
         "github_tokens_github_user_id_unique": {
           "name": "github_tokens_github_user_id_unique",
-          "columns": [
-            "github_user_id"
-          ],
+          "columns": ["github_user_id"],
           "isUnique": true
         }
       },

@@ -21,9 +21,8 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
-    "baseUrl": ".",
     "paths": {
-      "@*": ["./src/*"],
+      "@*": ["./src/*"]
     },
 
     // Some stricter flags (disabled by default)
@@ -32,5 +31,5 @@
     "noPropertyAccessFromIndexSignature": false
   },
 
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "sessions"]
 }
