@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  opencode-manager:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./sessions:/data/sessions
+      - ./opencode-manager.db:/app/opencode-manager.db
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - NODE_ENV=production
+    restart: unless-stopped
