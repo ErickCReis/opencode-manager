@@ -1,1 +1,0 @@
-ALTER TABLE `sessions` DROP COLUMN `github_token_id`;

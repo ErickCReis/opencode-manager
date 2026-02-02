@@ -8,7 +8,4 @@ services:
     volumes:
       - ./sessions:/data/sessions
       - ./opencode-manager.db:/app/opencode-manager.db
-    environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - NODE_ENV=production
     restart: unless-stopped

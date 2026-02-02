@@ -4,8 +4,7 @@ import { eq, asc } from "drizzle-orm";
 import { db, schema } from "../db";
 import { generateId, getRandomPort } from "./utils";
 
-const SESSIONS_DIR = "./sessions";
-
+const SESSIONS_DIR = process.env.SESSIONS_DIR || "./sessions";
 export interface CreateSessionInput {
   repo: string;
   branch: string;
@@ -86,10 +85,11 @@ export class SessionManager {
     const sessionDir = `${SESSIONS_DIR}/${sessionId}/repo`;
 
     const opencodeProcess = Bun.spawn(
-      ["/opt/homebrew/bin/opencode", "serve", "--port", port.toString(), "--hostname", "localhost"],
+      ["/opt/homebrew/bin/opencode", "serve", "--port", port.toString()],
+      // ["/opt/homebrew/bin/opencode", "serve", "--port", port.toString(), "--hostname", "localhost"],
       {
         cwd: sessionDir,
-        env: { OPENCODE_SERVER_PASSWORD: "opencode" },
+        // env: { OPENCODE_SERVER_PASSWORD: "opencode" },
         onExit(proc, exitCode, signalCode, error) {
           console.info("OpenCode process exited", { exitCode, signalCode, error });
         },

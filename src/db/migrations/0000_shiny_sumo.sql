@@ -9,4 +9,12 @@ CREATE TABLE `github_tokens` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `github_tokens_github_user_id_unique` ON `github_tokens` (`github_user_id`);--> statement-breakpoint
-ALTER TABLE `sessions` ADD `github_token_id` text;
+CREATE TABLE `sessions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`repo` text NOT NULL,
+	`branch` text NOT NULL,
+	`port` integer NOT NULL,
+	`pid` integer,
+	`status` text DEFAULT 'stopped' NOT NULL,
+	`created_at` integer NOT NULL
+);
