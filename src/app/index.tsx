@@ -15,14 +15,6 @@ import { Home } from "@app/home";
 import "@app/globals.css";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: (failureCount, error) => {
-        if (String(error) === "Not authenticated") return false;
-        return failureCount < 3;
-      },
-    },
-  },
   mutationCache: new MutationCache({
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : String(error) || "Something went wrong");

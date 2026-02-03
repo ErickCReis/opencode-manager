@@ -23,21 +23,12 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
 
   const { data: githubUser } = useQuery({
     queryKey: ["githubUser"],
-    queryFn: async () => {
-      const { data, error } = await api.auth.github.user.get();
-      if (error) throw error.value;
-      return data;
-    },
-    retry: false,
+    queryFn: () => api.auth.github.user.get().then((res) => res.data),
   });
 
   const { data: userRepos, isLoading: isLoadingRepos } = useQuery({
     queryKey: ["userRepos"],
-    queryFn: async () => {
-      const { data, error } = await api.auth.github.repos.get();
-      if (error) throw error.value;
-      return data;
-    },
+    queryFn: () => api.auth.github.repos.get().then((res) => res.data),
     enabled: !!githubUser,
     retry: false,
   });
@@ -45,14 +36,12 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
   const [owner, repo] = repoValue.split("/");
   const { data: repoBranches, isLoading: isLoadingBranches } = useQuery({
     queryKey: ["repoBranches", owner, repo],
-    queryFn: async () => {
-      const { data, error } = await api
+    queryFn: () =>
+      api
         .github({ owner: owner! })
         .repo({ repo: repo! })
-        .branches.get();
-      if (error) throw error.value;
-      return data;
-    },
+        .branches.get()
+        .then((res) => res.data),
     enabled: !!githubUser && !!owner && !!repo,
     retry: false,
   });
@@ -60,11 +49,10 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
   const form = useForm({
     defaultValues: { repo: "", branch: "main" },
     onSubmit: async ({ value }) => {
-      const { error } = await api.sessions.post({
+      await api.sessions.post({
         repo: value.repo,
         branch: value.branch,
       });
-      if (error) throw error.value;
       void queryClient.invalidateQueries({ queryKey: ["sessions"] });
       onClose();
     },

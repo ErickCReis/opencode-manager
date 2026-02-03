@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t, status } from "elysia";
 import { eq } from "drizzle-orm";
 import { sessionManager } from "@lib/session-manager";
 import { db, schema } from "@db";
@@ -8,10 +8,10 @@ export const sessionsRouter = new Elysia()
   .get("/api/sessions", async () => {
     return await sessionManager.listSessions();
   })
-  .get("/api/sessions/:id", async ({ params, error }) => {
+  .get("/api/sessions/:id", async ({ params }) => {
     const session = await sessionManager.getSession(params.id);
     if (!session) {
-      return error(404, "Session not found");
+      throw status(404, "Session not found");
     }
     return session;
   })

@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t, status } from "elysia";
 import { createGitHubClient } from "../lib/github-client";
 import { getCookieSchema } from "@api";
 import { schema } from "@db";
@@ -9,10 +9,10 @@ export const githubRouter = new Elysia()
   .guard({
     cookie: getCookieSchema(),
   })
-  .resolve(async ({ cookie, error }) => {
-    const tokenId = cookie.github_token_id?.value;
+  .resolve(async ({ cookie }) => {
+    const tokenId = cookie.github_token_id.value;
     if (!tokenId) {
-      return error(401, "Not authenticated");
+      throw status(401, "Not authenticated");
     }
 
     const [tokenRecord] = await db
@@ -22,7 +22,7 @@ export const githubRouter = new Elysia()
       .limit(1);
 
     if (!tokenRecord) {
-      return error(401, "Token not found");
+      throw status(401, "Token not found");
     }
 
     return { github: createGitHubClient(tokenRecord.accessToken) };
