@@ -65,6 +65,37 @@ export class GitHubClient {
     this.token = token;
   }
 
+  static async exchangeCodeForToken(
+    code: string,
+    clientId: string,
+    clientSecret: string,
+  ): Promise<GitHubClient> {
+    const response = await fetch("https://github.com/login/oauth/access_token", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error_description || data.error);
+    }
+
+    return new GitHubClient(data.access_token);
+  }
+
+  get accessToken(): string {
+    return this.token;
+  }
+
   private async request<T>(path: string, options: RequestInit = {}): Promise<GitHubApiResponse<T>> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...options,

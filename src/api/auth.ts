@@ -2,34 +2,11 @@ import { Elysia, redirect } from "elysia";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@db";
 import { getCookieSchema } from "@api";
-import { createGitHubClient } from "@lib/github-client";
+import { GitHubClient } from "@lib/github-client";
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || "";
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || "";
 const APP_URL = process.env.APP_URL || "http://localhost:3000";
-
-async function exchangeCodeForToken(code: string): Promise<string> {
-  const response = await fetch("https://github.com/login/oauth/access_token", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      client_id: GITHUB_CLIENT_ID,
-      client_secret: GITHUB_CLIENT_SECRET,
-      code,
-    }),
-  });
-
-  const data = await response.json();
-
-  if (data.error) {
-    throw new Error(data.error_description || data.error);
-  }
-
-  return data.access_token;
-}
 
 export const authRouter = new Elysia()
   .get("/api/auth/github", () => {
@@ -63,8 +40,11 @@ export const authRouter = new Elysia()
       }
 
       try {
-        const accessToken = await exchangeCodeForToken(code);
-        const github = createGitHubClient(accessToken);
+        const github = await GitHubClient.exchangeCodeForToken(
+          code,
+          GITHUB_CLIENT_ID,
+          GITHUB_CLIENT_SECRET,
+        );
         const githubUser = await github.getUser();
 
         const [existingUser] = await db
@@ -79,7 +59,7 @@ export const authRouter = new Elysia()
           await db
             .update(schema.githubTokens)
             .set({
-              accessToken,
+              accessToken: github.accessToken,
               username: githubUser.login,
               email: githubUser.email,
             })
@@ -92,7 +72,7 @@ export const authRouter = new Elysia()
               githubUserId: githubUser.id,
               username: githubUser.login,
               email: githubUser.email,
-              accessToken,
+              accessToken: github.accessToken,
             })
             .returning();
           tokenId = inserted.id;
