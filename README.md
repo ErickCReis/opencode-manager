@@ -1,4 +1,4 @@
-# OpenCode Manager
+# OpenRepo
 
 A web application for managing OpenCode sessions. Clone repositories, start coding sessions, and manage your development workflow through a simple web interface.
 

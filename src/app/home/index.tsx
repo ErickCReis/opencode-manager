@@ -66,7 +66,7 @@ export function Home() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">OpenCode Manager</h1>
+            <h1 className="text-3xl font-bold text-foreground">OpenRepo</h1>
             <p className="text-muted-foreground mt-1">Manage your OpenCode sessions</p>
           </div>
           <div className="flex items-center gap-4">

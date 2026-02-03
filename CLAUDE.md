@@ -16,7 +16,7 @@ Default to using Bun instead of Node.js.
 
 ## Project Overview
 
-OpenCode Manager is a web app for managing OpenCode coding sessions. It clones GitHub repositories, spawns OpenCode server instances, and provides a web UI to manage them.
+OpenRepo is a web app for managing OpenCode coding sessions. It clones GitHub repositories, spawns OpenCode server instances, and provides a web UI to manage them.
 
 ## Architecture
 
@@ -30,7 +30,7 @@ src/
 │   ├── auth.ts        # GitHub OAuth flow
 │   └── github.ts      # GitHub API proxy endpoints
 ├── db/                # Database layer (SQLite + Drizzle)
-│   ├── index.ts       # DB connection (opencode-manager.db)
+│   ├── index.ts       # DB connection (openrepo.db)
 │   └── schema.ts      # Drizzle schema (sessions, githubTokens tables)
 ├── lib/               # Shared utilities
 │   ├── api.ts         # Eden client for frontend (type-safe API calls)

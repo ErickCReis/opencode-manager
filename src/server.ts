@@ -33,4 +33,4 @@ const gracefulShutdown = async () => {
 process.on("SIGINT", gracefulShutdown);
 process.on("SIGTERM", gracefulShutdown);
 
-console.log(`🚀 OpenCode Manager running at ${app.server?.url}`);
+console.log(`🚀 OpenRepo running at ${app.server?.url}`);

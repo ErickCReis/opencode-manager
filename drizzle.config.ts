@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./src/db/migrations",
   dialect: "sqlite",
   dbCredentials: {
-    url: process.env.SQLITE_FILE || "./opencode-manager.db",
+    url: process.env.SQLITE_FILE || "./openrepo.db",
   },
 });
