@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { Button } from "@app/components/ui/button";
 import { Card, CardContent } from "@app/components/ui/card";
+import { ThemeToggle } from "@app/components/theme-toggle";
 import {
   Dialog,
   DialogContent,
@@ -61,16 +62,17 @@ export function Home() {
   }, [queryClient]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-background text-foreground p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">OpenCode Manager</h1>
-            <p className="text-gray-500 mt-1">Manage your OpenCode sessions</p>
+            <h1 className="text-3xl font-bold text-foreground">OpenCode Manager</h1>
+            <p className="text-muted-foreground mt-1">Manage your OpenCode sessions</p>
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {githubUser ? (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <GithubLogoIcon className="w-4 h-4" />
                 <span>{githubUser.username}</span>
                 <Button variant="ghost" size="sm" onClick={() => disconnectMutation.mutate()}>
@@ -90,12 +92,14 @@ export function Home() {
           </div>
         </div>
 
-        {isLoading && <div className="text-center py-12 text-gray-500">Loading sessions...</div>}
-        {isError && <div className="text-center py-12 text-red-500">Failed to load sessions</div>}
+        {isLoading && (
+          <div className="text-center py-12 text-muted-foreground">Loading sessions...</div>
+        )}
+        {isError && <div className="text-center py-12 text-destructive">Failed to load sessions</div>}
         {!isLoading && !isError && sessions?.length === 0 && (
           <Card className="text-center py-12">
             <CardContent>
-              <p className="text-gray-500 mb-4">No sessions yet</p>
+              <p className="text-muted-foreground mb-4">No sessions yet</p>
               <Button onClick={() => setIsCreateOpen(true)}>
                 <PlusIcon className="w-4 h-4 mr-2" />
                 Create your first session

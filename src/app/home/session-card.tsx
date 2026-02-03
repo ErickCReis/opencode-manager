@@ -67,8 +67,8 @@ export function SessionCard({ session }: SessionCardProps) {
           <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${
               session.status === "running"
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-600"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200"
+                : "bg-muted text-muted-foreground"
             }`}
           >
             {session.status}
@@ -76,12 +76,12 @@ export function SessionCard({ session }: SessionCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600 font-mono">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground font-mono">
           <a
             href={session.serverUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="truncate hover:text-blue-600 underline"
+            className="truncate underline hover:text-primary"
           >
             {session.serverUrl}
           </a>

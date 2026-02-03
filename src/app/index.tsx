@@ -10,6 +10,7 @@ import { createRoot } from "react-dom/client";
 import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Toaster } from "@app/components/ui/sonner";
+import { ThemeProvider } from "@app/components/theme-provider";
 import { Home } from "@app/home";
 
 import "@app/globals.css";
@@ -25,10 +26,12 @@ const queryClient = new QueryClient({
 const elem = document.getElementById("root")!;
 const app = (
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Home />
-    </QueryClientProvider>
-    <Toaster />
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <Home />
+      </QueryClientProvider>
+      <Toaster />
+    </ThemeProvider>
   </StrictMode>
 );
 
