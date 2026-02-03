@@ -5,7 +5,6 @@ export const sessions = sqliteTable("sessions", {
   repo: text("repo").notNull(),
   branch: text("branch").notNull(),
   port: integer("port").notNull(),
-  pid: integer("pid"),
   status: text("status", { enum: ["running", "stopped"] })
     .notNull()
     .default("stopped"),

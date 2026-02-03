@@ -49,10 +49,10 @@ src/
 Path aliases are configured in tsconfig.json. Use `@*` which maps to `./src/*`:
 
 ```ts
-import { db, schema } from "@db";           // src/db/index.ts
-import { api } from "@lib/api";             // src/lib/api.ts
+import { db, schema } from "@db"; // src/db/index.ts
+import { api } from "@lib/api"; // src/lib/api.ts
 import { Button } from "@app/components/ui/button";
-import { getCookieSchema } from "@api";     // src/api/index.ts
+import { getCookieSchema } from "@api"; // src/api/index.ts
 ```
 
 ## Backend Patterns
@@ -68,11 +68,15 @@ export const myRouter = new Elysia()
   .get("/api/items", async () => {
     return { success: true, data: items };
   })
-  .post("/api/items", async ({ body }) => {
-    // handle creation
-  }, {
-    body: t.Object({ name: t.String() })
-  });
+  .post(
+    "/api/items",
+    async ({ body }) => {
+      // handle creation
+    },
+    {
+      body: t.Object({ name: t.String() }),
+    },
+  );
 ```
 
 ### Database Queries
@@ -84,10 +88,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@db";
 
 // Select
-const [session] = await db
-  .select()
-  .from(schema.sessions)
-  .where(eq(schema.sessions.id, id));
+const [session] = await db.select().from(schema.sessions).where(eq(schema.sessions.id, id));
 
 // Insert with returning
 const [result] = await db
@@ -96,10 +97,7 @@ const [result] = await db
   .returning();
 
 // Update
-await db
-  .update(schema.sessions)
-  .set({ status: "running", pid })
-  .where(eq(schema.sessions.id, id));
+await db.update(schema.sessions).set({ status: "running", pid }).where(eq(schema.sessions.id, id));
 ```
 
 ### Shell Commands
@@ -139,7 +137,7 @@ All data fetching uses TanStack Query:
 ```tsx
 const { data, isLoading } = useQuery({
   queryKey: ["sessions"],
-  queryFn: () => api.sessions.get().then(res => res.data?.data),
+  queryFn: () => api.sessions.get().then((res) => res.data?.data),
   refetchInterval: 5000,
 });
 

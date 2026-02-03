@@ -1,11 +1,20 @@
-version: "3.8"
-
 services:
   opencode-manager:
     build: .
     ports:
       - "3000:3000"
+      - "4000-4099:4000-4099"
     volumes:
-      - ./sessions:/data/sessions
-      - ./opencode-manager.db:/app/opencode-manager.db
+      - db:/usr/src/app/data/db
+      - sessions:/usr/src/app/data/sessions
+    environment:
+      - SQLITE_FILE=/usr/src/app/data/db/opencode-manager.db
+      - SESSIONS_DIR=/usr/src/app/data/sessions
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
     restart: unless-stopped
+
+volumes:
+  db:
+  sessions:

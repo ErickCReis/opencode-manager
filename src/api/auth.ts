@@ -2,7 +2,6 @@ import { Elysia, redirect } from "elysia";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@db";
 import { getCookieSchema } from "@api";
-import { createGitHubClient } from "@lib/github-client";
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || "";
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || "";
@@ -169,40 +168,6 @@ export const authRouter = new Elysia()
     ({ cookie }) => {
       cookie.github_token_id.remove();
       return { success: true };
-    },
-    {
-      cookie: getCookieSchema(),
-    },
-  )
-  .get(
-    "/api/auth/github/repos",
-    async ({ cookie }) => {
-      const tokenId = cookie.github_token_id.value;
-
-      if (!tokenId) {
-        return { success: false, error: "Not authenticated" };
-      }
-
-      const [tokenRecord] = await db
-        .select()
-        .from(schema.githubTokens)
-        .where(eq(schema.githubTokens.id, tokenId))
-        .limit(1);
-
-      if (!tokenRecord) {
-        return { success: false, error: "Token not found" };
-      }
-
-      try {
-        const client = createGitHubClient(tokenRecord.accessToken);
-        const repos = await client.listUserRepos();
-        return { success: true, data: repos };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : "Failed to fetch repos",
-        };
-      }
     },
     {
       cookie: getCookieSchema(),

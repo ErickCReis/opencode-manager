@@ -1,8 +1,12 @@
 import { $ } from "bun";
 import { mkdir } from "fs/promises";
 import { eq, asc } from "drizzle-orm";
+import { createOpencode } from "@opencode-ai/sdk";
 import { db, schema } from "../db";
-import { generateId, getRandomPort } from "./utils";
+import { generateSessionSlug, getRandomPort } from "./utils";
+
+// Store abort controllers for running sessions (in-memory, lost on restart)
+const sessionControllers = new Map<string, AbortController>();
 
 const SESSIONS_DIR = process.env.SESSIONS_DIR || "./sessions";
 export interface CreateSessionInput {
@@ -12,7 +16,7 @@ export interface CreateSessionInput {
 
 export class SessionManager {
   async createSession(input: CreateSessionInput) {
-    const id = generateId();
+    const id = generateSessionSlug(input.repo, input.branch);
     const port = getRandomPort();
     const sessionDir = `${SESSIONS_DIR}/${id}`;
 
@@ -84,21 +88,25 @@ export class SessionManager {
     const port = getRandomPort();
     const sessionDir = `${SESSIONS_DIR}/${sessionId}/repo`;
 
-    const opencodeProcess = Bun.spawn(
-      ["/opt/homebrew/bin/opencode", "serve", "--port", port.toString()],
-      // ["/opt/homebrew/bin/opencode", "serve", "--port", port.toString(), "--hostname", "localhost"],
-      {
-        cwd: sessionDir,
-        // env: { OPENCODE_SERVER_PASSWORD: "opencode" },
-        onExit(proc, exitCode, signalCode, error) {
-          console.info("OpenCode process exited", { exitCode, signalCode, error });
-        },
-      },
-    );
+    const controller = new AbortController();
+    sessionControllers.set(sessionId, controller);
+
+    const originalCwd = process.cwd();
+    try {
+      process.chdir(sessionDir);
+
+      await createOpencode({
+        port,
+        hostname: "localhost",
+        signal: controller.signal,
+      });
+    } finally {
+      process.chdir(originalCwd);
+    }
 
     await db
       .update(schema.sessions)
-      .set({ status: "running", port, pid: opencodeProcess.pid })
+      .set({ status: "running", port })
       .where(eq(schema.sessions.id, sessionId));
   }
 
@@ -106,18 +114,21 @@ export class SessionManager {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error("Session not found");
 
-    try {
-      await $`kill -9 ${session.pid}`.nothrow().quiet();
-    } catch {}
+    const controller = sessionControllers.get(sessionId);
+    if (controller) {
+      controller.abort();
+      sessionControllers.delete(sessionId);
+    }
 
     await db
       .update(schema.sessions)
-      .set({ status: "stopped", pid: null })
+      .set({ status: "stopped" })
       .where(eq(schema.sessions.id, sessionId));
   }
 
   async deleteSession(sessionId: string) {
     await this.stopSession(sessionId);
+    sessionControllers.delete(sessionId);
 
     const sessionDir = `${SESSIONS_DIR}/${sessionId}`;
     try {
@@ -140,7 +151,6 @@ export class SessionManager {
       repo: result.repo,
       branch: result.branch,
       port: result.port,
-      pid: result.pid,
       status: result.status,
       createdAt: result.createdAt,
       serverUrl: `http://localhost:${result.port}`,

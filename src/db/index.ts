@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/bun-sqlite";
 import { Database } from "bun:sqlite";
 import * as schema from "./schema";
 
-const sqlite = new Database("opencode-manager.db");
+const sqlite = new Database(process.env.SQLITE_FILE || "./opencode-manager.db");
 export const db = drizzle(sqlite, { schema });
 
 export { schema };

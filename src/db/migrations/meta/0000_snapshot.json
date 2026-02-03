@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ccc715ed-83e2-4b9f-98fd-519a91c06e53",
+  "id": "28a35227-2ad1-4a9b-a783-f020f27fd539",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "github_tokens": {
@@ -100,13 +100,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "pid": {
-          "name": "pid",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "status": {

@@ -19,6 +19,7 @@ import { api } from "@lib/api";
 export function CreateSessionForm({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
   const [repoValue, setRepoValue] = useState("");
+  const [branchValue, setBranchValue] = useState("main");
 
   const { data: githubUser } = useQuery({
     queryKey: ["githubUser"],
@@ -30,6 +31,19 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
     queryKey: ["userRepos"],
     queryFn: () => api.auth.github.repos.get().then((res) => res.data?.data ?? []),
     enabled: !!githubUser,
+    retry: false,
+  });
+
+  const [owner, repo] = repoValue.split("/");
+  const { data: repoBranches, isLoading: isLoadingBranches } = useQuery({
+    queryKey: ["repoBranches", owner, repo],
+    queryFn: () =>
+      api
+        .github({ owner: owner! })
+        .repo({ repo: repo! })
+        .branches.get()
+        .then((res) => res.data?.data ?? []),
+    enabled: !!githubUser && !!owner && !!repo,
     retry: false,
   });
 
@@ -69,6 +83,8 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
                   onValueChange={(value) => {
                     setRepoValue(value || "");
                     field.handleChange(value || "");
+                    setBranchValue("main");
+                    form.setFieldValue("branch", "main");
                   }}
                 >
                   <ComboboxInput placeholder="Search repositories..." />
@@ -118,14 +134,41 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
           {(field) => (
             <>
               <Label htmlFor={field.name}>Branch</Label>
-              <Input
-                id={field.name}
-                name={field.name}
-                placeholder="main"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
+              {githubUser && repoValue ? (
+                <Combobox
+                  value={branchValue}
+                  onValueChange={(value) => {
+                    setBranchValue(value || "main");
+                    field.handleChange(value || "main");
+                  }}
+                >
+                  <ComboboxInput placeholder="Search branches..." />
+                  <ComboboxContent>
+                    <ComboboxList>
+                      {isLoadingBranches ? (
+                        <ComboboxEmpty>Loading...</ComboboxEmpty>
+                      ) : repoBranches?.length === 0 ? (
+                        <ComboboxEmpty>No branches found</ComboboxEmpty>
+                      ) : (
+                        repoBranches?.map((branch) => (
+                          <ComboboxItem key={branch.name} value={branch.name}>
+                            {branch.name}
+                          </ComboboxItem>
+                        ))
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+              ) : (
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  placeholder="main"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              )}
               {field.state.meta.errors.length > 0 && (
                 <p className="text-sm text-red-500 mt-1">{field.state.meta.errors[0]}</p>
               )}
