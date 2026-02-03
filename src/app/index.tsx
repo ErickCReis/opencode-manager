@@ -7,13 +7,28 @@
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Toaster } from "@app/components/ui/sonner";
 import { Home } from "@app/home";
 
 import "@app/globals.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        if (error instanceof Error && error.message === "Not authenticated") return false;
+        return failureCount < 3;
+      },
+    },
+  },
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      toast.error(error.message || "Something went wrong");
+    },
+  }),
+});
 
 const elem = document.getElementById("root")!;
 const app = (

@@ -1,9 +1,10 @@
-import { Elysia, t, status } from "elysia";
+import { Elysia, t } from "elysia";
 import { createGitHubClient } from "../lib/github-client";
 import { getCookieSchema } from "@api";
 import { schema } from "@db";
 import { db } from "@db";
 import { eq } from "drizzle-orm";
+import { AppError } from "@lib/error";
 
 export const githubRouter = new Elysia()
   .guard({
@@ -12,7 +13,7 @@ export const githubRouter = new Elysia()
   .resolve(async ({ cookie }) => {
     const tokenId = cookie.github_token_id?.value;
     if (!tokenId) {
-      return status(401, { success: false, error: "Not authenticated" });
+      throw new AppError("Not authenticated", 401);
     }
 
     const [tokenRecord] = await db
@@ -22,61 +23,24 @@ export const githubRouter = new Elysia()
       .limit(1);
 
     if (!tokenRecord) {
-      return status(401, { success: false, error: "Token not found" });
+      throw new AppError("Token not found", 401);
     }
 
     return { github: createGitHubClient(tokenRecord.accessToken) };
   })
   .get("/api/auth/github/repos", async ({ github }) => {
-    try {
-      const repos = await github.listUserRepos();
-      return { success: true, data: repos };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch repos",
-      };
-    }
+    return await github.listUserRepos();
   })
   .get("/api/github/:owner/repo/:repo", async ({ github, params }) => {
-    try {
-      const repo = await github.getRepo(params.owner, params.repo);
-      return { success: true, data: repo };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch repo",
-      };
-    }
+    return await github.getRepo(params.owner, params.repo);
   })
   .get("/api/github/:owner/repo/:repo/branches", async ({ github, params }) => {
-    try {
-      const branches = await github.listBranches(params.owner, params.repo);
-      return { success: true, data: branches };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch branches",
-      };
-    }
+    return await github.listBranches(params.owner, params.repo);
   })
   .post(
     "/api/github/:owner/repo/:repo/branches",
     async ({ github, params, body }) => {
-      try {
-        const branch = await github.createBranch(
-          params.owner,
-          params.repo,
-          body.branchName,
-          body.baseBranch,
-        );
-        return { success: true, data: branch };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : "Failed to create branch",
-        };
-      }
+      return await github.createBranch(params.owner, params.repo, body.branchName, body.baseBranch);
     },
     {
       body: t.Object({
@@ -88,22 +52,14 @@ export const githubRouter = new Elysia()
   .post(
     "/api/github/:owner/repo/:repo/pulls",
     async ({ github, params, body }) => {
-      try {
-        const pr = await github.createPullRequest(
-          params.owner,
-          params.repo,
-          body.title,
-          body.body,
-          body.head,
-          body.base,
-        );
-        return { success: true, data: pr };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : "Failed to create PR",
-        };
-      }
+      return await github.createPullRequest(
+        params.owner,
+        params.repo,
+        body.title,
+        body.body,
+        body.head,
+        body.base,
+      );
     },
     {
       body: t.Object({
@@ -117,15 +73,7 @@ export const githubRouter = new Elysia()
   .get(
     "/api/github/:owner/repo/:repo/pulls",
     async ({ github, params, query }) => {
-      try {
-        const prs = await github.getPullRequests(params.owner, params.repo, query.state || "open");
-        return { success: true, data: prs };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : "Failed to fetch PRs",
-        };
-      }
+      return await github.getPullRequests(params.owner, params.repo, query.state || "open");
     },
     {
       query: t.Object({

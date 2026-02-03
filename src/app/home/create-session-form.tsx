@@ -14,7 +14,7 @@ import {
   ComboboxItem,
   ComboboxEmpty,
 } from "@app/components/ui/combobox";
-import { api } from "@lib/api";
+import { api, unwrap } from "@lib/api";
 
 export function CreateSessionForm({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
@@ -23,13 +23,13 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
 
   const { data: githubUser } = useQuery({
     queryKey: ["githubUser"],
-    queryFn: () => api.auth.github.user.get().then((res) => res.data?.data),
+    queryFn: () => api.auth.github.user.get().then(unwrap),
     retry: false,
   });
 
   const { data: userRepos, isLoading: isLoadingRepos } = useQuery({
     queryKey: ["userRepos"],
-    queryFn: () => api.auth.github.repos.get().then((res) => res.data?.data ?? []),
+    queryFn: () => api.auth.github.repos.get().then(unwrap),
     enabled: !!githubUser,
     retry: false,
   });
@@ -37,12 +37,7 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
   const [owner, repo] = repoValue.split("/");
   const { data: repoBranches, isLoading: isLoadingBranches } = useQuery({
     queryKey: ["repoBranches", owner, repo],
-    queryFn: () =>
-      api
-        .github({ owner: owner! })
-        .repo({ repo: repo! })
-        .branches.get()
-        .then((res) => res.data?.data ?? []),
+    queryFn: () => api.github({ owner: owner! }).repo({ repo: repo! }).branches.get().then(unwrap),
     enabled: !!githubUser && !!owner && !!repo,
     retry: false,
   });
@@ -50,10 +45,12 @@ export function CreateSessionForm({ onClose }: { onClose: () => void }) {
   const form = useForm({
     defaultValues: { repo: "", branch: "main" },
     onSubmit: async ({ value }) => {
-      await api.sessions.post({
-        repo: value.repo,
-        branch: value.branch,
-      });
+      await api.sessions
+        .post({
+          repo: value.repo,
+          branch: value.branch,
+        })
+        .then(unwrap);
       void queryClient.invalidateQueries({ queryKey: ["sessions"] });
       onClose();
     },

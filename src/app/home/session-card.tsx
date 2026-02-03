@@ -11,10 +11,9 @@ import {
   CopyIcon,
   CheckIcon,
 } from "@phosphor-icons/react";
-import { api } from "@lib/api";
-import type { Treaty } from "@elysiajs/eden";
+import { api, unwrap } from "@lib/api";
 
-type Session = Treaty.Data<typeof api.sessions.get>["data"][number];
+type Session = Awaited<ReturnType<typeof api.sessions.get>>["data"][number];
 
 interface SessionCardProps {
   session: Session;
@@ -25,17 +24,17 @@ export function SessionCard({ session }: SessionCardProps) {
   const [copied, setCopied] = useState(false);
 
   const stopMutation = useMutation({
-    mutationFn: () => api.sessions({ id: session.id }).stop.post(),
+    mutationFn: () => api.sessions({ id: session.id }).stop.post().then(unwrap),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sessions"] }),
   });
 
   const startMutation = useMutation({
-    mutationFn: () => api.sessions({ id: session.id }).start.post(),
+    mutationFn: () => api.sessions({ id: session.id }).start.post().then(unwrap),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sessions"] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => api.sessions({ id: session.id }).delete(),
+    mutationFn: () => api.sessions({ id: session.id }).delete().then(unwrap),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sessions"] }),
   });
 
