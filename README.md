@@ -1,21 +1,70 @@
-# bun-react-tailwind-shadcn-template
+# OpenCode Manager
 
-To install dependencies:
+A web application for managing OpenCode sessions. Clone repositories, start coding sessions, and manage your development workflow through a simple web interface.
+
+## Features
+
+- GitHub OAuth integration for accessing private repositories
+- Create sessions from any GitHub repository
+- Start/stop OpenCode instances
+- Browse files and run git commands within sessions
+- Real-time session status updates
+
+## Tech Stack
+
+- **Runtime**: Bun
+- **Backend**: Elysia
+- **Frontend**: React 19 + TailwindCSS
+- **Database**: SQLite (Drizzle ORM)
+- **Data Fetching**: TanStack Query
+
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh) installed
+- GitHub OAuth App credentials (for GitHub integration)
+
+### Installation
 
 ```bash
 bun install
 ```
 
-To start a development server:
+### Environment Variables
 
-```bash
-bun dev
+Create a `.env` file:
+
+```env
+COOKIE_SECRET=your-secret-key
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 
-To run for production:
+### Database Setup
 
 ```bash
-bun start
+bun run db:push
 ```
 
-This project was created using `bun init` in bun v1.3.8. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+### Development
+
+```bash
+bun run dev
+```
+
+The app will be available at `http://localhost:3000`.
+
+### Production
+
+```bash
+bun run start
+```
+
+## Scripts
+
+- `bun run dev` - Start development server with hot reload
+- `bun run start` - Start production server
+- `bun run check` - Run linting and formatting
+- `bun run db:generate` - Generate database migrations
+- `bun run db:push` - Push schema changes to database
