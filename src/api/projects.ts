@@ -2,12 +2,12 @@ import { Elysia, t } from "elysia";
 import { asc, eq } from "drizzle-orm";
 import { db, schema } from "@db";
 
-export const projectsRouter = new Elysia()
-  .get("/api/projects", async () => {
+export const projectsRouter = new Elysia({ prefix: "/projects" })
+  .get("/", async () => {
     return await db.select().from(schema.projects).orderBy(asc(schema.projects.createdAt));
   })
   .post(
-    "/api/projects",
+    "/",
     async ({ body }) => {
       const [result] = await db
         .insert(schema.projects)
@@ -33,6 +33,6 @@ export const projectsRouter = new Elysia()
       }),
     },
   )
-  .delete("/api/projects/:id", async ({ params }) => {
+  .delete("/:id", async ({ params }) => {
     await db.delete(schema.projects).where(eq(schema.projects.id, params.id));
   });

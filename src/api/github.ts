@@ -81,7 +81,7 @@ export const githubRouter = new Elysia({ prefix: "/github" })
     },
   )
   .get(
-    "/api/github/:owner/repo/:repo/actions/runs",
+    "/:owner/repo/:repo/actions/runs",
     async ({ github, params, query }) => {
       return await github.listWorkflowRuns(params.owner, params.repo, {
         branch: query.branch,

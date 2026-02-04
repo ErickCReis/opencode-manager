@@ -98,11 +98,11 @@ export function ActionsStatus({ repo, branch }: ActionsStatusProps) {
     );
   }
 
-  const statusLabel =
-    run.status === "completed" ? run.conclusion || "completed" : run.status;
+  const statusLabel = run.status === "completed" ? run.conclusion || "completed" : run.status;
 
   const isSuccess = run.status === "completed" && run.conclusion === "success";
-  const isFailure = run.status === "completed" && run.conclusion && failureStates.has(run.conclusion);
+  const isFailure =
+    run.status === "completed" && run.conclusion && failureStates.has(run.conclusion);
 
   const badgeClass = cn(
     "text-xs",

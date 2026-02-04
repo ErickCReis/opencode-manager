@@ -29,7 +29,7 @@ export function CreateProjectForm({ onClose }: { onClose: () => void }) {
 
   const { data: userRepos, isLoading: isLoadingRepos } = useQuery({
     queryKey: ["userRepos"],
-    queryFn: () => api.auth.github.repos.get().then((res) => res.data),
+    queryFn: () => api.github.repos.get().then((res) => res.data),
     enabled: !!githubUser,
     retry: false,
   });
@@ -121,7 +121,10 @@ export function CreateProjectForm({ onClose }: { onClose: () => void }) {
             <>
               <Label htmlFor={field.name}>Repository (owner/repo)</Label>
               {githubUser ? (
-                <Combobox value={repoValue} onValueChange={(value) => handleRepoSelection(value)}>
+                <Combobox
+                  value={repoValue}
+                  onValueChange={(value) => handleRepoSelection(value || "")}
+                >
                   <ComboboxInput placeholder="Search repositories..." />
                   <ComboboxContent>
                     <ComboboxList>

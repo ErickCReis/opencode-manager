@@ -52,19 +52,9 @@ export function Home() {
   const isLoading = sessions === null;
   const isError = sessions === null;
 
-
   useEffect(() => {
     const ws = api.sessions.sync.ws.subscribe();
-    ws.on("open", () => {
-      console.log("ws opened");
-    });
-
-    ws.on("close", () => {
-      console.log("ws closed");
-    });
-
     ws.subscribe((message) => {
-      console.log("message", message);
       setSessions(message.data);
     });
 

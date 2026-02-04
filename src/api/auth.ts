@@ -19,7 +19,7 @@ export const authRouter = new Elysia({ prefix: "/auth" })
 
     const redirectUrl = new URL("https://github.com/login/oauth/authorize");
     redirectUrl.searchParams.set("client_id", GITHUB_CLIENT_ID);
-    redirectUrl.searchParams.set("redirect_uri", `${APP_URL}/auth/github/callback`);
+    redirectUrl.searchParams.set("redirect_uri", `${APP_URL}/api/auth/github/callback`);
     redirectUrl.searchParams.set("scope", "repo read:user");
     redirectUrl.searchParams.set("state", crypto.randomUUID());
 
